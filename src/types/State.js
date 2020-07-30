@@ -103,6 +103,10 @@ export type EncounterState = {
     high: number,
     unit: UnitOfTime,
   },
+  period: {
+    startDate: Date,
+    endDate: Date,
+  },
   transition?: Transition,
 };
 

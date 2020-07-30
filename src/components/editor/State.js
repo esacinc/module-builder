@@ -2,7 +2,9 @@
 import React, { Component } from "react";
 import { RIESelect, RIEInput, RIENumber, RIEToggle, RIETextArea } from "riek";
 import _ from "lodash";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import moment from 'moment';
 import type {
   State,
   InitialState,
@@ -720,10 +722,46 @@ class Encounter extends Component<Props> {
       value: this.props.state.reason,
       lastSubmitted: this.props.state.reason,
       displayLabel: true,
+      startDate: new Date(),
+      startDateTo: new Date(),
+      endDate: new Date(),
+      unitvalue: '',
+      daysvalue: 0,
     };
+
+    if(this.props.state.period !== undefined){
+      this.setState({startDate:this.props.state.period.startDate,startDateTo:this.props.state.period.startDate})     
+    }
   }
 
   render() {
+
+    if(this.props.state.duration !== undefined){
+      let newdate = new Date();
+      let newLowdate = new Date();
+     let low = 0;
+     let high = 0;
+     high = this.props.state.duration.high - this.props.state.duration.low;
+      if(this.props.state.duration.unit == 'weeks'){
+        high = this.props.state.duration.high - this.props.state.duration.low;
+        newdate.setDate(this.state.startDate.getDate()+high * 7);
+        newLowdate.setDate(this.state.startDate.getDate()-this.props.state.duration.low * 7);
+      }else if(this.props.state.duration.unit == 'months'){
+        newdate.setMonth(this.state.startDate.getMonth()+high);
+        newLowdate.setMonth(this.state.startDate.getMonth()-this.props.state.duration.low);
+      }else if(this.props.state.duration.unit == 'years'){
+        newdate.setFullYear(this.state.startDate.getFullYear()+high);
+        newLowdate.setFullYear(this.state.startDate.setFullYear()-this.props.state.duration.low);
+      }else if(this.props.state.duration.unit == 'days'){
+        newdate.setDate(this.state.startDate.getDate()+high);
+        newLowdate.setDate(this.state.startDate.getDate()-this.props.state.duration.low);
+      }
+     
+      this.state.startDateTo = newdate;
+      this.state.startLowDate = newLowdate;
+      this.state.daysvalue = this.props.state.duration.high;  
+    }
+
     // check for undo/redo
     if (
       this.props.state.reason != this.state.value &&
@@ -780,7 +818,8 @@ class Encounter extends Component<Props> {
               onChange={this.props.onChange("codes")}
             />
           </div>
-          <div>{this.renderDuration()}</div> 
+          <div>{this.renderDuration()}</div>
+          <div>{this.renderPeriod()}</div>
         </div>
       );
     } else {
@@ -789,6 +828,7 @@ class Encounter extends Component<Props> {
           {this.renderWellness()}
           {this.renderReason()}
           {this.renderDuration()}
+          {this.renderPeriod()}
         </div>
       );
     }
@@ -1015,6 +1055,104 @@ class Encounter extends Component<Props> {
       );
     }
   }
+
+  renderPeriod() {
+    let state = ((this.props.state: any): EncounterState);
+   
+    if (!state.period) {
+      return (
+        <div>
+          <a
+            className="editable-text"
+            onClick={() =>
+              this.props.onChange("period")({
+                val: { id: { startDate:this.state.startDate, endDate:this.state.startDateTo} },
+              })
+            }
+          >
+            Add Period
+          </a>
+          <br />
+        </div>
+      );
+      return null;
+    } else {
+      return (
+        <div className="section">
+          Start Date:{" "}
+          <DatePicker
+        selected={this.state.startDate}
+        onChange={this.handleChange}
+      />
+          <br />
+         End Date:{" "}
+          <DatePicker
+        selected={this.state.startDateTo}
+        onChange={this.handleChangeTo}
+      />
+          <br />       
+          <a
+            className="editable-text"
+            onClick={() =>
+              this.props.onChange("period")({ val: { id: null } })
+            }
+          >
+            (remove)
+          </a>
+        </div>
+      );
+    }
+  }
+
+  handleChange = date => {
+    let newdate = new Date();
+    let newLowdate = new Date();
+    if(this.props.state.duration != undefined){
+      let low = 0;
+      let high = 0;
+       if(this.props.state.duration.unit == 'weeks'){
+         high = this.props.state.duration.high - this.props.state.duration.low;
+         newdate.setDate(this.state.startDate.getDate()+high * 7);
+         newLowdate.setDate(this.state.startDate.getDate()-this.props.state.duration.low * 7);
+    }else if(this.props.state.duration.unit == 'months'){
+      newdate.setMonth(this.state.startDate.getMonth()+this.props.state.duration.high);
+      newLowdate.setMonth(this.state.startDate.getMonth()+this.props.state.duration.low);
+    }else if(this.props.state.duration.unit == 'years'){
+      newdate.setFullYear(this.state.startDate.getFullYear()+this.props.state.duration.high);
+      newLowdate.setFullYear(this.state.startDate.setFullYear()+this.props.state.duration.low);
+    }else if(this.props.state.duration.unit == 'days'){
+      newdate.setDate(this.state.startDate.getDate()+this.props.state.duration.high);
+      newLowdate.setDate(this.state.startDate.getDate()+this.props.state.duration.low);
+    }
+      this.state.startDateTo = newdate;
+      this.state.startLowDate = newLowdate;
+      this.state.daysvalue = this.props.state.duration.high; 
+    }
+
+    this.setState({
+      startDate: date,
+      startDateTo:newdate
+    });
+       
+    setTimeout(()=>{ this.props.onChange("period")({
+      val: { id: { start:this.state.startDate, end:this.state.startDateTo,lowdate:this.state.startLowDate } },
+    })},500)
+  };
+
+  handleChangeTo = date => {
+    if(this.state.startDate > date){
+      alert('Please select Start date < End Date');
+      return false;
+    }
+    this.setState({
+      startDateTo: date
+    });
+       
+  setTimeout(()=>{ this.props.onChange("period")({
+    val: { id: { start:this.state.startDate, end:this.state.startDateTo } },
+  })},500)
+  
+  };
 
   handleTextChange(value) {
     this.setState({ value: value });
