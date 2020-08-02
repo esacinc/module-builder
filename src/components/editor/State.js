@@ -4,7 +4,7 @@ import { RIESelect, RIEInput, RIENumber, RIEToggle, RIETextArea } from "riek";
 import _ from "lodash";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import moment from 'moment';
+import moment from "moment";
 import type {
   State,
   InitialState,
@@ -49,12 +49,14 @@ import AutoCompleteText from "./AutoCompleteText";
 import Attributes from "./Attributes.js";
 import AttributeData from "../analysis/AttributeData.json";
 import "./State.css";
+import { numberLiteralTypeAnnotation } from "@babel/types";
 
 type Props = {
   moduleName: string,
   state: State,
   otherStates: State[],
   onChange: any,
+  handleChange: any,
   renameNode: any,
   copyNode: any,
   changeType: any,
@@ -725,41 +727,51 @@ class Encounter extends Component<Props> {
       startDate: new Date(),
       startDateTo: new Date(),
       endDate: new Date(),
-      unitvalue: '',
+      unitvalue: "",
       daysvalue: 0,
     };
 
-    if(this.props.state.period !== undefined){
-      this.setState({startDate:this.props.state.period.startDate,startDateTo:this.props.state.period.startDate})     
+    if (this.props.state.period !== undefined) {
+      this.setState({
+        startDate: this.props.state.period.startDate,
+        startDateTo: this.props.state.period.startDate,
+      });
     }
   }
 
   render() {
-
-    if(this.props.state.duration !== undefined){
+    if (this.props.state.duration !== undefined) {
       let newdate = new Date();
       let newLowdate = new Date();
-     let low = 0;
-     let high = 0;
-     high = this.props.state.duration.high - this.props.state.duration.low;
-      if(this.props.state.duration.unit == 'weeks'){
+      let low = 0;
+      let high = 0;
+      high = this.props.state.duration.high - this.props.state.duration.low;
+      if (this.props.state.duration.unit == "weeks") {
         high = this.props.state.duration.high - this.props.state.duration.low;
-        newdate.setDate(this.state.startDate.getDate()+high * 7);
-        newLowdate.setDate(this.state.startDate.getDate()-this.props.state.duration.low * 7);
-      }else if(this.props.state.duration.unit == 'months'){
-        newdate.setMonth(this.state.startDate.getMonth()+high);
-        newLowdate.setMonth(this.state.startDate.getMonth()-this.props.state.duration.low);
-      }else if(this.props.state.duration.unit == 'years'){
-        newdate.setFullYear(this.state.startDate.getFullYear()+high);
-        newLowdate.setFullYear(this.state.startDate.setFullYear()-this.props.state.duration.low);
-      }else if(this.props.state.duration.unit == 'days'){
-        newdate.setDate(this.state.startDate.getDate()+high);
-        newLowdate.setDate(this.state.startDate.getDate()-this.props.state.duration.low);
+        newdate.setDate(this.state.startDate.getDate() + high * 7);
+        newLowdate.setDate(
+          this.state.startDate.getDate() - this.props.state.duration.low * 7
+        );
+      } else if (this.props.state.duration.unit == "months") {
+        newdate.setMonth(this.state.startDate.getMonth() + high);
+        newLowdate.setMonth(
+          this.state.startDate.getMonth() - this.props.state.duration.low
+        );
+      } else if (this.props.state.duration.unit == "years") {
+        newdate.setFullYear(this.state.startDate.getFullYear() + high);
+        newLowdate.setFullYear(
+          this.state.startDate.setFullYear() - this.props.state.duration.low
+        );
+      } else if (this.props.state.duration.unit == "days") {
+        newdate.setDate(this.state.startDate.getDate() + high);
+        newLowdate.setDate(
+          this.state.startDate.getDate() - this.props.state.duration.low
+        );
       }
-     
+
       this.state.startDateTo = newdate;
       this.state.startLowDate = newLowdate;
-      this.state.daysvalue = this.props.state.duration.high;  
+      this.state.daysvalue = this.props.state.duration.high;
     }
 
     // check for undo/redo
@@ -1058,7 +1070,7 @@ class Encounter extends Component<Props> {
 
   renderPeriod() {
     let state = ((this.props.state: any): EncounterState);
-   
+
     if (!state.period) {
       return (
         <div>
@@ -1066,7 +1078,12 @@ class Encounter extends Component<Props> {
             className="editable-text"
             onClick={() =>
               this.props.onChange("period")({
-                val: { id: { startDate:this.state.startDate, endDate:this.state.startDateTo} },
+                val: {
+                  id: {
+                    start: this.state.startDate,
+                    end: this.state.startDateTo,
+                  },
+                },
               })
             }
           >
@@ -1081,21 +1098,19 @@ class Encounter extends Component<Props> {
         <div className="section">
           Start Date:{" "}
           <DatePicker
-        selected={this.state.startDate}
-        onChange={this.handleChange}
-      />
+            selected={this.state.startDate}
+            onChange={this.handleChange}
+          />
           <br />
-         End Date:{" "}
+          End Date:{" "}
           <DatePicker
-        selected={this.state.startDateTo}
-        onChange={this.handleChangeTo}
-      />
-          <br />       
+            selected={this.state.startDateTo}
+            onChange={this.handleChangeTo}
+          />
+          <br />
           <a
             className="editable-text"
-            onClick={() =>
-              this.props.onChange("period")({ val: { id: null } })
-            }
+            onClick={() => this.props.onChange("period")({ val: { id: null } })}
           >
             (remove)
           </a>
@@ -1104,54 +1119,79 @@ class Encounter extends Component<Props> {
     }
   }
 
-  handleChange = date => {
+  handleChange = (date) => {
     let newdate = new Date();
     let newLowdate = new Date();
-    if(this.props.state.duration != undefined){
+    if (this.props.state.duration != undefined) {
       let low = 0;
       let high = 0;
-       if(this.props.state.duration.unit == 'weeks'){
-         high = this.props.state.duration.high - this.props.state.duration.low;
-         newdate.setDate(this.state.startDate.getDate()+high * 7);
-         newLowdate.setDate(this.state.startDate.getDate()-this.props.state.duration.low * 7);
-    }else if(this.props.state.duration.unit == 'months'){
-      newdate.setMonth(this.state.startDate.getMonth()+this.props.state.duration.high);
-      newLowdate.setMonth(this.state.startDate.getMonth()+this.props.state.duration.low);
-    }else if(this.props.state.duration.unit == 'years'){
-      newdate.setFullYear(this.state.startDate.getFullYear()+this.props.state.duration.high);
-      newLowdate.setFullYear(this.state.startDate.setFullYear()+this.props.state.duration.low);
-    }else if(this.props.state.duration.unit == 'days'){
-      newdate.setDate(this.state.startDate.getDate()+this.props.state.duration.high);
-      newLowdate.setDate(this.state.startDate.getDate()+this.props.state.duration.low);
-    }
+      if (this.props.state.duration.unit == "weeks") {
+        high = this.props.state.duration.high - this.props.state.duration.low;
+        newdate.setDate(this.state.startDate.getDate() + high * 7);
+        newLowdate.setDate(
+          this.state.startDate.getDate() - this.props.state.duration.low * 7
+        );
+      } else if (this.props.state.duration.unit == "months") {
+        newdate.setMonth(
+          this.state.startDate.getMonth() + this.props.state.duration.high
+        );
+        newLowdate.setMonth(
+          this.state.startDate.getMonth() + this.props.state.duration.low
+        );
+      } else if (this.props.state.duration.unit == "years") {
+        newdate.setFullYear(
+          this.state.startDate.getFullYear() + this.props.state.duration.high
+        );
+        newLowdate.setFullYear(
+          this.state.startDate.setFullYear() + this.props.state.duration.low
+        );
+      } else if (this.props.state.duration.unit == "days") {
+        newdate.setDate(
+          this.state.startDate.getDate() + this.props.state.duration.high
+        );
+        newLowdate.setDate(
+          this.state.startDate.getDate() + this.props.state.duration.low
+        );
+      }
       this.state.startDateTo = newdate;
       this.state.startLowDate = newLowdate;
-      this.state.daysvalue = this.props.state.duration.high; 
+      this.state.daysvalue = this.props.state.duration.high;
     }
 
     this.setState({
       startDate: date,
-      startDateTo:newdate
+      startDateTo: newdate,
     });
-       
-    setTimeout(()=>{ this.props.onChange("period")({
-      val: { id: { start:this.state.startDate, end:this.state.startDateTo,lowdate:this.state.startLowDate } },
-    })},500)
+
+    setTimeout(() => {
+      this.props.onChange("period")({
+        val: {
+          id: {
+            start: this.state.startDate,
+            end: this.state.startDateTo,
+            lowdate: this.state.startLowDate,
+          },
+        },
+      });
+    }, 500);
   };
 
-  handleChangeTo = date => {
-    if(this.state.startDate > date){
-      alert('Please select Start date < End Date');
+  handleChangeTo = (date) => {
+    if (this.state.startDate > date) {
+      alert("Please select Start date < End Date");
       return false;
     }
     this.setState({
-      startDateTo: date
+      startDateTo: date,
     });
-       
-  setTimeout(()=>{ this.props.onChange("period")({
-    val: { id: { start:this.state.startDate, end:this.state.startDateTo } },
-  })},500)
-  
+
+    setTimeout(() => {
+      this.props.onChange("period")({
+        val: {
+          id: { start: this.state.startDate, end: this.state.startDateTo },
+        },
+      });
+    }, 500);
   };
 
   handleTextChange(value) {
@@ -1241,6 +1281,15 @@ class ConditionOnset extends Component<Props> {
 
   render() {
     // check for undo/redo
+    let statusoptions = [
+      { id: "active", text: "Active" },
+      { id: "recurrence", text: "Recurrence" },
+      { id: "relapse", text: "Relapse" },
+      { id: "inactive", text: "Inactive" },
+      { id: "remission", text: "Remission" },
+      { id: "resolved", text: "Resolved" },
+    ];
+
     if (
       this.props.state.assign_to_attribute != this.state.value &&
       this.state.value == this.state.lastSubmitted
@@ -1253,6 +1302,16 @@ class ConditionOnset extends Component<Props> {
       <div>
         {this.renderTargetEncounter()}
         {this.renderAssignToAttribute()}
+        <br />
+        Clinical Status:{" "}
+        <RIESelect
+          className="editable-text"
+          value={{ id: state.clinical_status, text: state.clinical_status }}
+          propName="clinical_status"
+          change={this.props.onChange("clinical_status")}
+          options={statusoptions}
+        />
+        <br />
         <div className="section">
           Codes
           <br />
@@ -1262,9 +1321,7 @@ class ConditionOnset extends Component<Props> {
             onChange={this.props.onChange("codes")}
           />
         </div>
-        <div>
-          {this.renderbodySite()}
-        </div>
+        <div>{this.renderbodySite()}</div>
       </div>
     );
   }
