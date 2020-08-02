@@ -104,8 +104,8 @@ export type EncounterState = {
     unit: UnitOfTime,
   },
   period: {
-    startDate: Date,
-    endDate: Date,
+    start: Date,
+    end: Date,
   },
   transition?: Transition,
 };
@@ -124,6 +124,13 @@ export type ConditionOnsetState = {
   type: "ConditionOnset",
   target_encounter: string,
   assign_to_attribute?: string,
+  clinical_status:
+    | "Active"
+    | "recurrence"
+    | "relapse"
+    | "inactive"
+    | "remission"
+    | "resolved",
   codes: Code[],
   body_site: Code[],
   transition?: Transition,
