@@ -103,6 +103,18 @@ export type EncounterState = {
     high: number,
     unit: UnitOfTime,
   },
+  location:{
+    location_display:string,
+    location_status:
+    | "planned"
+    | "active"
+    | "reserved"
+    | "completed",
+    location_period:{
+      start:date,
+      end:date
+    }
+  },
   period: {
     start: Date,
     end: Date,

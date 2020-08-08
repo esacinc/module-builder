@@ -75,6 +75,13 @@ const unitOfTimeOptions = [
   { id: "seconds", text: "seconds" },
 ];
 
+const locationStatusOptions = [
+  { id: "planned", text: "Planned" },
+  { id: "active", text: "Active" },
+  { id: "reserved", text: "Reserved" },
+  { id: "completed", text: "Completed" }
+];
+
 class StateEditor extends Component<Props> {
   renderStateType() {
     let props = { ...this.props };
@@ -726,9 +733,12 @@ class Encounter extends Component<Props> {
       displayLabel: true,
       startDate: new Date(),
       startDateTo: new Date(),
-      endDate: new Date(),
-      unitvalue: "",
-      daysvalue: 0,
+      LstartDate: new Date(),
+      LendDate: new Date(),
+      startLowDate: new Date(),
+      unitvalue:'',
+      daysvalue:0
+
     };
 
     if (this.props.state.period !== undefined) {
@@ -798,6 +808,13 @@ class Encounter extends Component<Props> {
       { id: "entered-in-error", text: "Entered in Error" },
       { id: "unknown", text: "Unknown" },
     ];
+
+    let locationStatusOptions = [
+      { id: "planned", text: "Planned" },
+      { id: "active", text: "Active" },
+      { id: "reserved", text: "Reserved" },
+      { id: "completed", text: "Completed" }
+    ];
     if (state.wellness == null) {
       return (
         <div>
@@ -841,6 +858,7 @@ class Encounter extends Component<Props> {
           {this.renderReason()}
           {this.renderDuration()}
           {this.renderPeriod()}
+          {this.renderLocation()}
         </div>
       );
     }
@@ -1068,6 +1086,71 @@ class Encounter extends Component<Props> {
     }
   }
 
+  renderLocation() {
+    
+    let state = ((this.props.state: any): EncounterState);
+    if (!state.location) {
+      return (
+        <div>
+          <a
+            className="editable-text"
+            onClick={() =>
+              this.props.onChange("location")({
+                val: { id: { location_display: '', location_status: 'planed', location_period:{start:new Date(),end:new Date()} } },
+              })
+            }
+          >
+            Add Location
+          </a>
+          <br />
+        </div>
+      );
+      return null;
+    } else {
+      return (
+        <div className="section">
+         Location Display:{" "}
+          <RIEInput
+            className="editable-text"
+            value={state.location.location_display}
+            propName={"location_display"}
+            change={this.props.onChange("location.location_display")}
+          />
+          <br />
+          Location Status:{" "}
+          <RIESelect
+            className="editable-text"
+            value={{ id: state.location.location_status, text: state.location.location_status }}
+            propName={"location_status"}
+            change={this.props.onChange("location.location_status")}
+            options = {locationStatusOptions}
+          />
+          <br />
+          Start Date:{" "}
+          <DatePicker
+        selected={state.location.location_period.start}
+        onChange={this.handleChangeStart}
+      />
+      <br/>
+      End Date:{" "}
+          <DatePicker
+        selected={state.location.location_period.end}
+        onChange={this.handleChangeEnd}
+      />
+      <br/>
+          <a
+            className="editable-text"
+            onClick={() =>
+              this.props.onChange("location")({ val: { id: null } })
+            }
+          >
+            (remove)
+          </a>
+        </div>
+      );
+    }
+  }
+
   renderPeriod() {
     let state = ((this.props.state: any): EncounterState);
 
@@ -1118,6 +1201,37 @@ class Encounter extends Component<Props> {
       );
     }
   }
+
+
+  handleChangeStart = date => {
+    let state = ((this.props.state: any): EncounterState);
+    setTimeout(()=>{ this.props.onChange("location")({
+     
+      val: { id: { location_display: state.location.location_display,
+         location_status: state.location.location_status,
+          location_period:{
+            start:date,
+            end:state.location.location_period.end
+          } } },
+    })},500)
+  }
+
+  handleChangeEnd = date => {
+    let state = ((this.props.state: any): EncounterState);
+    if(state.location.location_period.start > date){
+      alert('Please select Start date > End Date');
+      return false;
+    }
+    setTimeout(()=>{ this.props.onChange("location")({
+     
+      val: { id: { location_display: state.location.location_display,
+         location_status: state.location.location_status,
+          location_period:{
+            start:state.location.location_period.start,
+            end:date
+          } } },
+    })},500)
+   }
 
   handleChange = (date) => {
     let newdate = new Date();
