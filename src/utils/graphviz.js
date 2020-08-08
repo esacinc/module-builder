@@ -604,6 +604,14 @@ const stateDescription = (state) => {
     )} \\n End Date: ${moment(d["end"]).format("Do MMMM YYYY, h:mm:ss")}\\l`;
     // }
   }
+
+  if(state.location){
+    // if(state.duration){
+     let d = state['location']
+     details = `${details}\\n Location Display: ${d['location_display']} \\n Location Status: ${d['location_status']} \\n Start Date: ${moment(d['location_period']['start']).format("Do MMMM YYYY, h:mm:ss")} \\n End Date:  ${moment(d['location_period']['end']).format("Do MMMM YYYY, h:mm:ss")} \\n`
+    // }
+   }
+   
   if (state.category) {
     details = `${details}Category: ${state["category"]}\\l`;
   }
