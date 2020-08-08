@@ -849,6 +849,7 @@ class Encounter extends Component<Props> {
           </div>
           <div>{this.renderDuration()}</div>
           <div>{this.renderPeriod()}</div>
+          <div>{this.renderLocation()}</div>
         </div>
       );
     } else {
