@@ -412,6 +412,7 @@ const StateTemplates = {
     type: "ConditionOnset",
     assign_to_attribute: "",
     target_encounter: "",
+    rank: 0,
     codes: [{...TypeTemplates.Code.Snomed}]
   },
 

@@ -1458,10 +1458,22 @@ class ConditionOnset extends Component<Props> {
         options={options}
       />
     );
+    let rank = (
+      <RIENumber
+      className="editable-text"
+      defaultValue={state.rank}
+      value={state.rank}
+      propName={"rank"}
+      change={this.props.onChange("rank")}
+    />
+    );
+
     if (state.target_encounter) {
       return (
         <div>
           Target Encounter: {targetEncounter}
+          <br />
+          Rank : {rank}
           <br />
           <a
             className="editable-text"
