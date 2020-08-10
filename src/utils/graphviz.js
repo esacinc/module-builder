@@ -520,7 +520,7 @@ const stateDescription = (state) => {
         break;
     }
 
-    details = details + verb + " at " + state["target_encounter"] + "\\l";
+    details = details + verb + " at " + state["target_encounter"] + "\\l"+ "\\l" + " Rank:" + state['rank'] + "\\l";
   }
 
   if (state.reason) {

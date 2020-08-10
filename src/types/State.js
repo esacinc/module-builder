@@ -135,6 +135,7 @@ export type ConditionOnsetState = {
   remarks: string[],
   type: "ConditionOnset",
   target_encounter: string,
+  rank: number,
   assign_to_attribute?: string,
   clinical_status:
     | "Active"

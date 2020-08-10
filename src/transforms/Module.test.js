@@ -64,6 +64,7 @@ const moduleJSON = {
           "display": "Examplitis"
         }
       ],
+      "rank":0,
       "direct_transition": "Wellness_Encounter"
     },
 
