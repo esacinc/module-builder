@@ -79,7 +79,7 @@ const locationStatusOptions = [
   { id: "planned", text: "Planned" },
   { id: "active", text: "Active" },
   { id: "reserved", text: "Reserved" },
-  { id: "completed", text: "Completed" }
+  { id: "completed", text: "Completed" },
 ];
 
 class StateEditor extends Component<Props> {
@@ -736,9 +736,8 @@ class Encounter extends Component<Props> {
       LstartDate: new Date(),
       LendDate: new Date(),
       startLowDate: new Date(),
-      unitvalue:'',
-      daysvalue:0
-
+      unitvalue: "",
+      daysvalue: 0,
     };
 
     if (this.props.state.period !== undefined) {
@@ -813,7 +812,7 @@ class Encounter extends Component<Props> {
       { id: "planned", text: "Planned" },
       { id: "active", text: "Active" },
       { id: "reserved", text: "Reserved" },
-      { id: "completed", text: "Completed" }
+      { id: "completed", text: "Completed" },
     ];
     if (state.wellness == null) {
       return (
@@ -1088,7 +1087,6 @@ class Encounter extends Component<Props> {
   }
 
   renderLocation() {
-    
     let state = ((this.props.state: any): EncounterState);
     if (!state.location) {
       return (
@@ -1097,7 +1095,13 @@ class Encounter extends Component<Props> {
             className="editable-text"
             onClick={() =>
               this.props.onChange("location")({
-                val: { id: { location_display: '', location_status: 'planed', location_period:{start:new Date(),end:new Date()} } },
+                val: {
+                  id: {
+                    location_display: "",
+                    location_status: "planned",
+                    location_period: { start: new Date(), end: new Date() },
+                  },
+                },
               })
             }
           >
@@ -1110,7 +1114,7 @@ class Encounter extends Component<Props> {
     } else {
       return (
         <div className="section">
-         Location Display:{" "}
+          Location Display:{" "}
           <RIEInput
             className="editable-text"
             value={state.location.location_display}
@@ -1121,24 +1125,27 @@ class Encounter extends Component<Props> {
           Location Status:{" "}
           <RIESelect
             className="editable-text"
-            value={{ id: state.location.location_status, text: state.location.location_status }}
+            value={{
+              id: state.location.location_status,
+              text: state.location.location_status,
+            }}
             propName={"location_status"}
             change={this.props.onChange("location.location_status")}
-            options = {locationStatusOptions}
+            options={locationStatusOptions}
           />
           <br />
           Start Date:{" "}
           <DatePicker
-        selected={state.location.location_period.start}
-        onChange={this.handleChangeStart}
-      />
-      <br/>
-      End Date:{" "}
+            selected={state.location.location_period.start}
+            onChange={this.handleChangeStart}
+          />
+          <br />
+          End Date:{" "}
           <DatePicker
-        selected={state.location.location_period.end}
-        onChange={this.handleChangeEnd}
-      />
-      <br/>
+            selected={state.location.location_period.end}
+            onChange={this.handleChangeEnd}
+          />
+          <br />
           <a
             className="editable-text"
             onClick={() =>
@@ -1203,36 +1210,45 @@ class Encounter extends Component<Props> {
     }
   }
 
-
-  handleChangeStart = date => {
+  handleChangeStart = (date) => {
     let state = ((this.props.state: any): EncounterState);
-    setTimeout(()=>{ this.props.onChange("location")({
-     
-      val: { id: { location_display: state.location.location_display,
-         location_status: state.location.location_status,
-          location_period:{
-            start:date,
-            end:state.location.location_period.end
-          } } },
-    })},500)
-  }
+    setTimeout(() => {
+      this.props.onChange("location")({
+        val: {
+          id: {
+            location_display: state.location.location_display,
+            location_status: state.location.location_status,
+            location_period: {
+              start: date,
+              end: state.location.location_period.end,
+            },
+          },
+        },
+      });
+    }, 500);
+  };
 
-  handleChangeEnd = date => {
+  handleChangeEnd = (date) => {
     let state = ((this.props.state: any): EncounterState);
-    if(state.location.location_period.start > date){
-      alert('Please select Start date > End Date');
+    if (state.location.location_period.start > date) {
+      alert("Please select Start date > End Date");
       return false;
     }
-    setTimeout(()=>{ this.props.onChange("location")({
-     
-      val: { id: { location_display: state.location.location_display,
-         location_status: state.location.location_status,
-          location_period:{
-            start:state.location.location_period.start,
-            end:date
-          } } },
-    })},500)
-   }
+    setTimeout(() => {
+      this.props.onChange("location")({
+        val: {
+          id: {
+            location_display: state.location.location_display,
+            location_status: state.location.location_status,
+            location_period: {
+              start: state.location.location_period.start,
+              end: date,
+            },
+          },
+        },
+      });
+    }, 500);
+  };
 
   handleChange = (date) => {
     let newdate = new Date();
@@ -1460,12 +1476,12 @@ class ConditionOnset extends Component<Props> {
     );
     let rank = (
       <RIENumber
-      className="editable-text"
-      defaultValue={state.rank}
-      value={state.rank}
-      propName={"rank"}
-      change={this.props.onChange("rank")}
-    />
+        className="editable-text"
+        defaultValue={state.rank}
+        value={state.rank}
+        propName={"rank"}
+        change={this.props.onChange("rank")}
+      />
     );
 
     if (state.target_encounter) {
